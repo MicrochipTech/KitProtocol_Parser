@@ -43,6 +43,10 @@
 extern "C" {
 #endif // __cplusplus
 
+#if defined(UART_INTERFACE)
+#define printf(...)
+#endif
+
 /** \brief Standard HAL API initialize with physical interface API
  *
  *  \param[in]    iface                 references to the interface (I2C, SWI, SPI) need to be selected
@@ -103,139 +107,21 @@ enum kit_protocol_status select_interface(interface_id_t interface);
  */
 const char* get_header_string(ext_header header);
 
-/** \brief The function Initialize the HAL interface instances
- *
- *  \note Its a pointer that holds host interface hardware init
- *
- *  \param[in]    None
- *
- *  \param[out]   None
- *
- *  \param[inout] None
- *
- *  \return None
- */
-void (*init)(void);
+struct kit_hal_interface
+{
+  void (*init)(void);//The function Initialize the HAL interface instances
+  void (*deinit)(void);//The function deinitialize the HAL interface instances
+  void (*discover)(device_info_t*, uint8_t*);//The function discover the device attached to the HOST
+  
+  enum kit_protocol_status (*wake)(uint32_t);//The function send wake token to device
+  enum kit_protocol_status (*sleep)(uint32_t);//The function send sleep token to device
+  enum kit_protocol_status (*idle)(uint32_t);//The function send idle token to device
+  enum kit_protocol_status (*send)(uint32_t, uint8_t*, uint16_t *);//The function send input message command to device
+  enum kit_protocol_status (*receive)(uint32_t, uint8_t*, uint16_t *);//Its a pointer that holds host interface hardware receive function
+  enum kit_protocol_status (*talk)(uint32_t, uint8_t*, uint16_t *);//Its a pointer that holds host interface hardware talk function
+};
 
-/** \brief The function deinitialize the HAL interface instances
- *
- *  \note Its a pointer that holds host interface hardware deinit
- *
- *  \param[in]    None
- *
- *  \param[out]   None
- *
- *  \param[inout] None
- *
- *  \return None
- */
-void (*deinit)(void);
-
-/** \brief The function discover the device attached to the HOST
- *
- *  \note Its a pointer that holds host interface hardware discover function
- *
- *  \param[in]    device_info           refernces to the device info attached to HOST
- *                device_count          references to the number od devices attached to HOST
- *
- *  \param[out]   None
- *
- *  \param[inout] None
- *
- *  \return None
- */
-void (*discover)(device_info_t*, uint8_t*);
-
-/** \brief The function send wake token to device
- *
- *  \note Its a pointer that holds host interface hardware wake function
- *
- *  \param[in]    device_addr            references to the device address
- *
- *  \param[out]   None
- *
- *  \param[inout] None
- *
- *  \return KIT_STATUS_SUCCESS on success, otherwise an error code
- */
-enum kit_protocol_status (*wake)(uint32_t);
-
-/** \brief The function send sleep token to device
- *
- *  \note Its a pointer that holds host interface hardware sleep function
- *
- *  \param[in]    device_addr            references to the device address
- *
- *  \param[out]   None
- *
- *  \param[inout] None
- *
- *  \return KIT_STATUS_SUCCESS on success, otherwise an error code
- */
-enum kit_protocol_status (*sleep)(uint32_t);
-
-/** \brief The function send idle token to device
- *
- *  \note Its a pointer that holds host interface hardware idle function
- *
- *  \param[in]    device_addr            references to the device address
- *
- *  \param[out]   None
- *
- *  \param[inout] None
- *
- *  \return KIT_STATUS_SUCCESS on success, otherwise an error code
- */
-enum kit_protocol_status (*idle)(uint32_t);
-
-/** \brief The function send input message command to device
- *
- *  \note Its a pointer that holds host interface hardware send function
- *
- *  \param[in]    device_addr            references to the device address
- *                message                references to input message command
- *                length                 references to message length
- *
- *  \param[out]   None
- *
- *  \param[inout] None
- *
- *  \return KIT_STATUS_SUCCESS on success, otherwise an error code
- */
-enum kit_protocol_status (*send)(uint32_t, uint8_t*, uint16_t *);
-
-/** \brief The function receives message response from device
- *
- *  \note Its a pointer that holds host interface hardware receive function
- *
- *  \param[in]    device_addr            references to device address
- *
- *  \param[out]   message                references to message received from device
- *
- *  \param[inout] length                 in  - references to expected message length to be received
- *                                       out - references to actual received message length from device
- *
- *  \return KIT_STATUS_SUCCESS on success, otherwise an error code
- */
-enum kit_protocol_status (*receive)(uint32_t, uint8_t*, uint16_t *);
-
-/** \brief The function send message to device and recieve response from device
- *
- *  \note Its a pointer that holds host interface hardware talk function
- *
- *  \param[in]    device_addr            references to device address
- *
- *  \param[out]   None
- *
- *  \param[inout] message                in  - references to input message from host
- *                                       out - references to message response from device
- *                length                 in  - references to input mesaage length
- *                                       out - references to message reponse size
- *
- *  \return KIT_STATUS_SUCCESS on success, otherwise an error code
- */
-enum kit_protocol_status (*talk)(uint32_t, uint8_t*, uint16_t *);
-
+extern struct kit_hal_interface g_kit_hal_interface;
 
 //!< Following variable instances to be created by the application.
 //!< This module links these apis to Kitprotocol parser for reference

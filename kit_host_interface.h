@@ -39,34 +39,13 @@
 extern "C" {
 #endif // __cplusplus
 
-/** \brief The function initialize the host interface
- *
- *  \note Its a pointer that holds host interface hardware init
- *
- *  \param[in]    None
- *
- *  \param[out]   None
- *
- *  \param[inout] None
- *
- *  \return None
- */
-void (*host_init)(void);
+struct kit_host_interface
+{
+    void (*host_init)(void);//The function initialize the host interface
+    uint8_t (*send_device_response_to_host)(uint8_t*, uint16_t);//The function send a device message response to host
+};
 
-/** \brief The function send a device message response to host
- *
- *  \note Its a pointer that holds host interface receive api (receive message response from device)
- *
- *  \param[in]    message_resp           references to message reponse from device
- *                message_resp_len       references to message response length
- *
- *  \param[out]   None
- *
- *  \param[inout] None
- *
- *  \return None
- */
-uint8_t (*send_device_response_to_host)(uint8_t*, uint16_t);
+extern struct kit_host_interface g_kit_host_interface;
 
 /** \brief This is parent method to be called to initialize  host side interface
  *             related buffers, their lengths, hardware init, send and receive apis
@@ -87,11 +66,21 @@ extern uint8_t* host_message_received;           //!< Whether the host message w
 
 //!< Following variable instances to be created by the application.
 //!< This module links these apis to Kitprotocol parser for reference
+#if defined(USB_HID_INTERFACE)
 extern uint8_t g_usb_message_received;
 extern uint8_t g_usb_buffer[];
 extern uint16_t g_usb_buffer_length;
 extern void usb_hid_init(void);
 extern uint8_t usb_send_message_response(uint8_t*, uint16_t);
+#elif defined(UART_INTERFACE)
+extern uint8_t g_uart_message_received;
+extern uint8_t g_uart_buffer[];
+extern uint16_t g_uart_buffer_length;
+extern void host_uart_init(void);
+extern uint8_t uart_send_message_response(uint8_t*, uint16_t);
+#else
+#error Invalid Host, Select host configuration properly
+#endif
 
 #ifdef __cplusplus
 }

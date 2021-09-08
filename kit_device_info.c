@@ -306,3 +306,43 @@ uint8_t get_eccx08_response_size(uint8_t *command)
     }
     return response_size;
 }
+
+uint8_t get_ecc204_opcode_execution_delay(uint8_t opcode)
+{
+    switch (opcode)
+    {
+    case ECC204_COUNTER:
+        return ECC204_COUNTER_EXEC_DELAY;
+        break;
+    case ECC204_GENKEY:
+        return ECC204_GENKEY_EXEC_DELAY;
+        break;
+    case ECC204_INFO:
+        return ECC204_INFO_EXEC_DELAY;
+        break;
+    case ECC204_LOCK:
+        return ECC204_LOCK_EXEC_DELAY;
+        break;
+    case ECC204_NONCE:
+        return ECC204_NONCE_EXEC_DELAY;
+        break;
+    case ECC204_READ:
+        return ECC204_READ_EXEC_DELAY;
+        break;
+    case ECC204_SELFTEST:
+        return ECC204_SELFTEST_EXEC_DELAY;
+        break;
+    case ECC204_SHA:
+        return ECC204_SHA_EXEC_DELAY;
+        break;
+    case ECC204_SIGN:
+        return ECC204_SIGN_EXEC_DELAY;
+        break;
+    case ECC204_WRITE:
+        return ECC204_WRITE_EXEC_DELAY;
+        break;
+    default:
+        return 10;
+        break;
+    }
+}

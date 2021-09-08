@@ -40,8 +40,8 @@ extern "C" {
 #endif // __cplusplus
 
 static const char kitprotocol_parser_string_short[] = "Parser ";        //!< short string of kitprotocol parser
-static const char kitprotocol_parser_string[]  = "KitProtocolParser ";  //!< long string of kitprotocol parser
-static const uint8_t kitprotocol_parser_version[]  =  { 3, 0, 0 };      //!< Kitprotocol parser version
+static const char kitprotocol_parser_string[]  = "CryptoAuthTrustPlatform ";  //!< long string of kitprotocol parser
+static const uint8_t kitprotocol_parser_version[]  =  { 3, 0, 4 };      //!< Kitprotocol parser version
 
 #ifdef __cplusplus
 }

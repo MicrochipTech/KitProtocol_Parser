@@ -57,6 +57,15 @@ For example:
 
 Release notes
 -----------
+ 3.0.4
+  - Added UART interface to host, fixed compilation warnings and interface selection support added 
+
+ 3.0.3
+  - Added function to provide an Emerald execution delay to support no polling method
+  
+ 3.0.2
+  - Bug fixed related to kitprotocol firmware name string to provide support on ACES 
+
  3.0.1
   - Bug fixed related to SWI string
 

@@ -287,13 +287,44 @@ static const char writecompute_string[] = "WriteCompute";
 #define ECC108_UPDATE_EXTRA          ((uint8_t)0x20) //!< UpdateExtra command op-code
 #define ECC108_VERIFY                ((uint8_t)0x45) //!< GenKey command op-code
 #define ECC108_WRITE                 ((uint8_t)0x12) //!< Write command op-code
-#define ECC108_SHA                   ((uint8_t)0x47) //!< Sign command op-code
+#define ECC108_SHA                   ((uint8_t)0x47) //!< SHA command op-code
 
 #define ECC108_RSP_SIZE_MIN          ((uint8_t)4)    //!< minimum number of bytes in response
 #define ECC108_RSP_SIZE_72           ((uint8_t)75)   //!< size of response packet containing 64 bytes data
 #define ECC108_RSP_SIZE_64           ((uint8_t)67)   //!< size of response packet containing 64 bytes data
 #define ECC108_RSP_SIZE_32           ((uint8_t)35)   //!< size of response packet containing 32 bytes data
 #define ECC108_RSP_SIZE_MAX          ((uint8_t)100)  //!< maximum size of response packet (GenKey and Verify command)
+/** @} */
+
+/** \name Opcode for ECC204 commands
+ * @{ */
+#define ECC204_COUNTER               ((uint8_t)0x24)  //!< Counter command op-code
+#define ECC204_GENKEY                ((uint8_t)0x40)  //!< GenKey command op-code
+#define ECC204_INFO                  ((uint8_t)0x30)  //!< Info command op-code
+#define ECC204_LOCK                  ((uint8_t)0x17)  //!< Lock command op-code
+#define ECC204_NONCE                 ((uint8_t)0x16)  //!< Nonce command op-code
+#define ECC204_READ                  ((uint8_t)0x02)  //!< Read command op-code
+#define ECC204_SELFTEST              ((uint8_t)0x77)  //!< Selftest command op-code
+#define ECC204_SHA                   ((uint8_t)0x47)  //!< SHA command op-code
+#define ECC204_SIGN                  ((uint8_t)0x41)  //!< Sign command op-code
+#define ECC204_WRITE                 ((uint8_t)0x12)  //!< Write command op-code
+/** @} */
+
+
+/** \name ECC204 Command execution delay
+ * @{ */
+#define ECC204_COUNTER_EXEC_DELAY               ((uint8_t)1)  //!< Counter command op-code
+#define ECC204_GENKEY_EXEC_DELAY                ((uint8_t)100)  //!< GenKey command op-code
+#define ECC204_INFO_EXEC_DELAY                  ((uint8_t)1)  //!< Info command op-code
+#define ECC204_LOCK_EXEC_DELAY                  ((uint8_t)6)  //!< Lock command op-code
+#define ECC204_NONCE_EXEC_DELAY                 ((uint8_t)35)  //!< Nonce command op-code
+#define ECC204_READ_EXEC_DELAY                  ((uint8_t)1)  //!< Read command op-code
+#define ECC204_SELFTEST_EXEC_DELAY              ((uint8_t)110)  //!< Selftest command op-code
+#define ECC204_SHA_EXEC_DELAY                   ((uint8_t)4)  //!< SHA command op-code
+#define ECC204_SIGN_EXEC_DELAY                  ((uint8_t)100)  //!< Sign command op-code
+#define ECC204_WRITE_EXEC_DELAY                 ((uint8_t)10)  //!< Write command op-code
+/** @} */
+
 
 /** \name Response Size Definitions
    @{ */
@@ -403,6 +434,7 @@ typedef struct
    const char* device_string;
 }device_cmd_string_t;
 
+
 /** \brief The function return device type based on device revision number (Crypto device)
  *
  *  \param[in]    dev_rev                references to device revision number
@@ -451,6 +483,18 @@ const char* get_command_string(device_type_t device, uint8_t opcode);
  *  \return command response size
  */
 uint8_t get_eccx08_response_size(uint8_t *command);
+
+/** \brief The function return ECC204 command execution delay
+ *
+ *  \param[in]    opcode               references to device command opcode
+ *
+ *  \param[out]   None
+ *
+ *  \param[inout] None
+ *
+ *  \return command execution delay
+ */
+uint8_t get_ecc204_opcode_execution_delay(uint8_t opcode);
 
 #ifdef __cplusplus
 }

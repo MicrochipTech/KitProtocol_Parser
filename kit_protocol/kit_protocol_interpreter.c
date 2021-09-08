@@ -44,6 +44,7 @@ char g_section[KIT_SECTION_NAME_SIZE_MAX];
 static uint16_t g_message_length = 0;
 static uint32_t g_selected_device_handle = 0;
 device_type_t g_selected_device_type = DEVICE_TYPE_UNKNOWN;
+interface_id_t g_selected_interface_type = DEVKIT_IF_UNKNOWN;
 
 const char *interface_string[] = { "no_device ", "SPI ", "TWI ", "SWI ", "SWI " };
 
@@ -316,16 +317,23 @@ static enum kit_protocol_status kit_interpreter_parse_subcommand_section(char *s
 {
     enum kit_protocol_status status = KIT_STATUS_SUCCESS;
     char *begin_delimiter = NULL;
+    char *kit_delimiter = NULL;
     char *end_delimiter = NULL;
     uint8_t device_index_size = 0;
     uint8_t device_index = 0;
 
     // Find the data delimiter
     begin_delimiter = strchr(section, KIT_DATA_BEGIN_DELIMITER);
-    if (begin_delimiter != NULL)
+    kit_delimiter = strchr(section, KIT_LAYER_DELIMITER);
+    
+    if( begin_delimiter != NULL )
     {
         // Convert the Kit Protocol subcommand message to lowercase
         kit_protocol_convert_to_lowercase((begin_delimiter - section), section);
+    }
+    
+    if (begin_delimiter != NULL || kit_delimiter != NULL)
+    {
 
         // Check the first character in subcommand section
         switch (section[0])
@@ -333,6 +341,36 @@ static enum kit_protocol_status kit_interpreter_parse_subcommand_section(char *s
         case 's':        // The device idle command: device:physical:select(00)
             g_message_command = KIT_COMMAND_PHYSICAL_SELECT;
             break;
+
+        case 'i':        // "i[nt]:{i[2c] | s[wi] | s[pi]}
+            section = strchr(section, KIT_LAYER_DELIMITER);
+			if (section) 
+            {
+				// Set and enable interface (I2C or SWI or SPI).
+				if (section[1] == 's')
+                {
+                    if(section[2] == 'p')
+                    {
+                        g_selected_interface_type = DEVKIT_IF_SPI;
+                    }
+
+                    if(section[2] == 'w')
+                    {
+                        if(section[4] != '\0')
+                        {
+                            g_selected_interface_type = DEVKIT_IF_SWI2;
+                        }
+                        else
+                        {
+                            g_selected_interface_type = DEVKIT_IF_SWI;
+                        }
+                    }
+                }
+                else
+                {
+                    g_selected_interface_type = DEVKIT_IF_I2C;
+                }
+            }		
 
         default:
             // Unknown Kit Protocol command message
@@ -616,18 +654,35 @@ void kit_interpreter_set_selected_device_handle(const uint32_t handle)
     ext_header header;
     uint8_t address = 0x00;
     uint8_t i;
-
+    
     for (i = 0; i < MAX_DISCOVER_DEVICES; i++)
     {
         select_handle = get_device_info(i);
-        if (select_handle->address == handle)
+
+        if (g_selected_interface_type != DEVKIT_IF_UNKNOWN)
         {
-            address = select_handle->address;
-            interface = select_handle->bus_type;
-            dev_type = select_handle->device_type;
-            g_selected_device_type = dev_type;
-            header = select_handle->header;
-            break;
+            if (select_handle->address == handle && select_handle->bus_type == g_selected_interface_type)
+            {
+                address = select_handle->address;
+                interface = select_handle->bus_type;
+                dev_type = select_handle->device_type;
+                g_selected_device_type = dev_type;
+                header = select_handle->header;
+                g_selected_interface_type = DEVKIT_IF_UNKNOWN;
+                break;
+            }
+        }
+        else
+        {
+            if (select_handle->address == handle)
+            {
+                address = select_handle->address;
+                interface = select_handle->bus_type;
+                dev_type = select_handle->device_type;
+                g_selected_device_type = dev_type;
+                header = select_handle->header;
+                break;
+            }
         }
 
     }

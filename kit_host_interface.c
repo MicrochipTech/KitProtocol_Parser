@@ -35,12 +35,24 @@ uint8_t* host_msg_buffer;
 uint16_t* host_msg_buffer_length;
 uint8_t* host_message_received;
 
+struct kit_host_interface g_kit_host_interface;
+
 void host_iface_init(void)
 {
+#if defined(USB_HID_INTERFACE)
     host_msg_buffer = &g_usb_buffer[0];
     host_msg_buffer_length = &g_usb_buffer_length;
     host_message_received = &g_usb_message_received;
-    host_init = &usb_hid_init;
-    send_device_response_to_host = &usb_send_message_response;
-    host_init();
+    g_kit_host_interface.host_init = &usb_hid_init;
+    g_kit_host_interface.send_device_response_to_host = &usb_send_message_response;
+#elif defined(UART_INTERFACE)
+    host_msg_buffer = &g_uart_buffer[0];
+    host_msg_buffer_length = &g_uart_buffer_length;
+    host_message_received = &g_uart_message_received;
+    g_kit_host_interface.host_init = &host_uart_init;
+    g_kit_host_interface.send_device_response_to_host = &uart_send_message_response;
+#else 
+#error Invalid Host, Select host configuration properly
+#endif
+    g_kit_host_interface.host_init();
 }

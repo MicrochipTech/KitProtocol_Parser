@@ -258,13 +258,13 @@ enum kit_protocol_status kit_board_application(uint32_t device_id, uint8_t *mess
 enum kit_protocol_status kit_device_idle(uint32_t device_id)
 {
     command_separate = 1;
-    return idle(device_id);
+    return g_kit_hal_interface.idle(device_id);
 }
 
 enum kit_protocol_status kit_device_sleep(uint32_t device_id)
 {
     command_separate = 1;
-    return sleep(device_id);
+    return g_kit_hal_interface.sleep(device_id);
 }
 
 enum kit_protocol_status kit_device_wake(uint32_t device_id, uint8_t * message, uint16_t * length)
@@ -273,10 +273,10 @@ enum kit_protocol_status kit_device_wake(uint32_t device_id, uint8_t * message, 
     uint8_t wake_max_delay_time = 15;
 
     *length = 4;
-    wake(device_id);
+    g_kit_hal_interface.wake(device_id);
     do
     {
-        if ((status = receive(device_id, message, length)) == KIT_STATUS_SUCCESS)
+        if ((status = g_kit_hal_interface.receive(device_id, message, length)) == KIT_STATUS_SUCCESS)
         {
             break;
         }
@@ -291,7 +291,7 @@ enum kit_protocol_status kit_device_wake(uint32_t device_id, uint8_t * message, 
 enum kit_protocol_status kit_device_receive(uint32_t device_id, uint8_t * message, uint16_t * length)
 {
     enum kit_protocol_status status = KIT_STATUS_FAILURE;
-    status = receive(device_id, message, length);
+    status = g_kit_hal_interface.receive(device_id, message, length);
     if (*length > 1)
     {
         command_separate = 1;
@@ -330,7 +330,7 @@ enum kit_protocol_status kit_device_send(uint32_t device_id, uint8_t * message, 
         printf("%s", "\r\n");
     }
 
-    status = send(device_id, message, length);
+    status = g_kit_hal_interface.send(device_id, message, length);
     *length = 0;  //For send command response will be kitstatus "00()\n"
     return status;
 }
@@ -363,7 +363,7 @@ enum kit_protocol_status kit_device_talk(uint32_t device_id, uint8_t * message, 
         printf("%s", "\r\n");
     }
 
-    return talk(device_id, message, length);
+    return g_kit_hal_interface.talk(device_id, message, length);
 
 
 }
@@ -434,7 +434,7 @@ void kit_protocol_task(void *params)
         kit_interpreter_handle_message( (char*)host_msg_buffer, host_msg_buffer_length);
         print_kit_traffic("Sent");
         // send response to host
-        send_device_response_to_host(&host_msg_buffer[0], *host_msg_buffer_length);
+        g_kit_host_interface.send_device_response_to_host(&host_msg_buffer[0], *host_msg_buffer_length);
         // reset the message buffer length
         *host_msg_buffer_length = 0;
         // reset the message received bool variable

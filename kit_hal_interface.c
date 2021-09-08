@@ -33,6 +33,7 @@
 #include "kit_hal_interface.h"
 
 static device_info_t device_info[MAX_DISCOVER_DEVICES];
+struct kit_hal_interface g_kit_hal_interface;
 static const char *ext_header_string[] = { "EXT1 ", "EXT2 ", "EXT3 ", "MICROBUS" };
 
 enum kit_protocol_status hal_iface_init(interface_id_t iface)
@@ -43,60 +44,60 @@ enum kit_protocol_status hal_iface_init(interface_id_t iface)
     {
     case DEVKIT_IF_I2C:
             #ifdef KIT_HAL_I2C
-        init = &hal_i2c_init;
-        deinit = &hal_i2c_deinit;
-        discover = &hal_i2c_discover;
-        wake = &hal_i2c_wake;
-        idle = &hal_i2c_idle;
-        sleep = &hal_i2c_sleep;
-        talk = &hal_i2c_talk;
-        send = &hal_i2c_send;
-        receive = &hal_i2c_receive;
+        g_kit_hal_interface.init = &hal_i2c_init;
+        g_kit_hal_interface.deinit = &hal_i2c_deinit;
+        g_kit_hal_interface.discover = &hal_i2c_discover;
+        g_kit_hal_interface.wake = &hal_i2c_wake;
+        g_kit_hal_interface.idle = &hal_i2c_idle;
+        g_kit_hal_interface.sleep = &hal_i2c_sleep;
+        g_kit_hal_interface.talk = &hal_i2c_talk;
+        g_kit_hal_interface.send = &hal_i2c_send;
+        g_kit_hal_interface.receive = &hal_i2c_receive;
         status = KIT_STATUS_SUCCESS;
             #endif
         break;
 
     case DEVKIT_IF_SWI:
             #ifdef KIT_HAL_SWI
-        init = &hal_swi_init;
-        deinit = &hal_swi_deinit;
-        discover = &hal_swi_discover;
-        wake = &hal_swi_wake;
-        idle = &hal_swi_idle;
-        sleep = &hal_swi_sleep;
-        talk = &hal_swi_talk;
-        send = &hal_swi_send;
-        receive = &hal_swi_receive;
+        g_kit_hal_interface.init = &hal_swi_init;
+        g_kit_hal_interface.deinit = &hal_swi_deinit;
+        g_kit_hal_interface.discover = &hal_swi_discover;
+        g_kit_hal_interface.wake = &hal_swi_wake;
+        g_kit_hal_interface.idle = &hal_swi_idle;
+        g_kit_hal_interface.sleep = &hal_swi_sleep;
+        g_kit_hal_interface.talk = &hal_swi_talk;
+        g_kit_hal_interface.send = &hal_swi_send;
+        g_kit_hal_interface.receive = &hal_swi_receive;
         status = KIT_STATUS_SUCCESS;
             #endif
         break;
 
     case DEVKIT_IF_SPI:
             #ifdef KIT_HAL_SPI
-        init = &hal_spi_init;
-        deinit = &hal_spi_deinit;
-        discover = &hal_spi_discover;
-        wake = &hal_spi_wake;
-        idle = &hal_spi_idle;
-        sleep = &hal_spi_sleep;
-        talk = &hal_spi_talk;
-        send = &hal_spi_send;
-        receive = &hal_spi_receive;
+        g_kit_hal_interface.init = &hal_spi_init;
+        g_kit_hal_interface.deinit = &hal_spi_deinit;
+        g_kit_hal_interface.discover = &hal_spi_discover;
+        g_kit_hal_interface.wake = &hal_spi_wake;
+        g_kit_hal_interface.idle = &hal_spi_idle;
+        g_kit_hal_interface.sleep = &hal_spi_sleep;
+        g_kit_hal_interface.talk = &hal_spi_talk;
+        g_kit_hal_interface.send = &hal_spi_send;
+        g_kit_hal_interface.receive = &hal_spi_receive;
         status = KIT_STATUS_SUCCESS;
             #endif
         break;
 
     case DEVKIT_IF_SWI2:
             #ifdef KIT_HAL_SWI2
-        init = &hal_gpio_init;
-        deinit = &hal_gpio_deinit;
-        discover = &hal_gpio_discover;
-        wake = &hal_gpio_wake;
-        idle = &hal_gpio_idle;
-        sleep = &hal_gpio_sleep;
-        talk = &hal_gpio_talk;
-        send = &hal_gpio_send;
-        receive = &hal_gpio_receive;
+        g_kit_hal_interface.init = &hal_gpio_init;
+        g_kit_hal_interface.deinit = &hal_gpio_deinit;
+        g_kit_hal_interface.discover = &hal_gpio_discover;
+        g_kit_hal_interface.wake = &hal_gpio_wake;
+        g_kit_hal_interface.idle = &hal_gpio_idle;
+        g_kit_hal_interface.sleep = &hal_gpio_sleep;
+        g_kit_hal_interface.talk = &hal_gpio_talk;
+        g_kit_hal_interface.send = &hal_gpio_send;
+        g_kit_hal_interface.receive = &hal_gpio_receive;
         status = KIT_STATUS_SUCCESS;
             #endif
         break;
@@ -122,37 +123,41 @@ interface_id_t hardware_interface_discover(void)
     uint8_t device_count = 0;
     const char* device_string;
     const char* header_string;
+    
+    //Adding below to avoid compilation error on UART with NO printf support
+    (void)device_string;
+    (void)header_string;
 
     memset(device_info, 0, sizeof(device_info));
 
     #ifdef KIT_HAL_SWI
     hal_iface_init(DEVKIT_IF_SWI);
-    init();
-    discover(&device_info[total_device_count], &device_count);
+    g_kit_hal_interface.init();
+    g_kit_hal_interface.discover(&device_info[total_device_count], &device_count);
     total_device_count += device_count;
     device_count = 0;
     #endif
 
     #ifdef KIT_HAL_I2C
     hal_iface_init(DEVKIT_IF_I2C);
-    init();
-    discover(&device_info[total_device_count], &device_count);
+    g_kit_hal_interface.init();
+    g_kit_hal_interface.discover(&device_info[total_device_count], &device_count);
     total_device_count += device_count;
     device_count = 0;
     #endif
 
     #ifdef KIT_HAL_SPI
     hal_iface_init(DEVKIT_IF_SPI);
-    init();
-    discover(&device_info[total_device_count], &device_count);
+    g_kit_hal_interface.init();
+    g_kit_hal_interface.discover(&device_info[total_device_count], &device_count);
     total_device_count += device_count;
     device_count = 0;
     #endif
 
     #ifdef KIT_HAL_SWI2
     hal_iface_init(DEVKIT_IF_SWI2);
-    init();
-    discover(&device_info[total_device_count], &device_count);
+    g_kit_hal_interface.init();
+    g_kit_hal_interface.discover(&device_info[total_device_count], &device_count);
     total_device_count += device_count;
     device_count = 0;
     #endif
@@ -196,7 +201,7 @@ enum kit_protocol_status select_interface(interface_id_t interface)
 {
     enum kit_protocol_status status;
 
-    deinit();
+    g_kit_hal_interface.deinit();
     status = hal_iface_init(interface);
 
     return status;
