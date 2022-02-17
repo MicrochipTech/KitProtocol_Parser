@@ -325,13 +325,13 @@ static enum kit_protocol_status kit_interpreter_parse_subcommand_section(char *s
     // Find the data delimiter
     begin_delimiter = strchr(section, KIT_DATA_BEGIN_DELIMITER);
     kit_delimiter = strchr(section, KIT_LAYER_DELIMITER);
-    
+
     if( begin_delimiter != NULL )
     {
         // Convert the Kit Protocol subcommand message to lowercase
         kit_protocol_convert_to_lowercase((begin_delimiter - section), section);
     }
-    
+
     if (begin_delimiter != NULL || kit_delimiter != NULL)
     {
 
@@ -344,7 +344,7 @@ static enum kit_protocol_status kit_interpreter_parse_subcommand_section(char *s
 
         case 'i':        // "i[nt]:{i[2c] | s[wi] | s[pi]}
             section = strchr(section, KIT_LAYER_DELIMITER);
-			if (section) 
+			if (section)
             {
 				// Set and enable interface (I2C or SWI or SPI).
 				if (section[1] == 's')
@@ -651,17 +651,21 @@ void kit_interpreter_set_selected_device_handle(const uint32_t handle)
     device_info_t *select_handle;
     interface_id_t interface = DEVKIT_IF_UNKNOWN;
     device_type_t dev_type = DEVICE_TYPE_UNKNOWN;
-    ext_header header;
+    ext_header header = EXT1_HEADER;
     uint8_t address = 0x00;
     uint8_t i;
-    
+
     for (i = 0; i < MAX_DISCOVER_DEVICES; i++)
     {
         select_handle = get_device_info(i);
 
         if (g_selected_interface_type != DEVKIT_IF_UNKNOWN)
         {
-            if (select_handle->address == handle && select_handle->bus_type == g_selected_interface_type)
+            if ((select_handle->address == handle) && 
+                ((select_handle->bus_type == g_selected_interface_type) || 
+                ((g_selected_interface_type == DEVKIT_IF_SWI) && 
+                    ((select_handle->bus_type == DEVKIT_IF_SWI) || 
+                    (select_handle->bus_type == DEVKIT_IF_SWI2)))))
             {
                 address = select_handle->address;
                 interface = select_handle->bus_type;

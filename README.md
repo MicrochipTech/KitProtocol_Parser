@@ -57,6 +57,9 @@ For example:
 
 Release notes
 -----------
+ 3.0.6
+  - Minor bug fixes on SWI2 interface 
+
  3.0.4
   - Added UART interface to host, fixed compilation warnings and interface selection support added 
 
