@@ -110,7 +110,10 @@ uint16_t kit_protocol_convert_binary_to_hex(uint16_t length, uint8_t *buffer)
     }
 
     // Allocate the memory needed for the ASCII hex buffer
-    hex_buffer = (char*)malloc(hex_buffer_size);
+    if (NULL == (hex_buffer = (char*)malloc(hex_buffer_size)))
+    {
+        return 0;
+    }
     memset(hex_buffer, 0, hex_buffer_size);
 
     for (uint16_t index = 0; index < length; index++)

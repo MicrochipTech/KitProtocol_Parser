@@ -256,9 +256,30 @@ enum kit_protocol_status kit_board_application(uint32_t device_id, uint8_t *mess
 }
 
 enum kit_protocol_status kit_device_idle(uint32_t device_id)
-{
-    command_separate = 1;
-    return g_kit_hal_interface.idle(device_id);
+{   
+    enum kit_protocol_status status = !KIT_STATUS_SUCCESS;
+    device_info_t *select_handle;
+    device_type_t device_type = DEVICE_TYPE_UNKNOWN;
+    uint8_t i;
+    
+    for (i = 0; i < MAX_DISCOVER_DEVICES; i++)
+    {
+        select_handle = get_device_info(i);
+        if (select_handle->address == device_id)
+        {
+            device_type = select_handle->device_type;
+            break;
+        }
+    }
+    
+    // Idle is not supported for ECC204,TA010,SHA104,SHA105,SHA106,RNG90,ECC206 devices
+    if (check_idle_support(device_type))
+    {
+        command_separate = 1;
+        status = g_kit_hal_interface.idle(device_id);
+    }
+    
+    return status;
 }
 
 enum kit_protocol_status kit_device_sleep(uint32_t device_id)
@@ -271,7 +292,7 @@ enum kit_protocol_status kit_device_wake(uint32_t device_id, uint8_t * message, 
 {
     enum kit_protocol_status status = !KIT_STATUS_SUCCESS;
     uint8_t wake_max_delay_time = 15;
-
+    
     *length = 4;
     g_kit_hal_interface.wake(device_id);
     do
@@ -280,7 +301,7 @@ enum kit_protocol_status kit_device_wake(uint32_t device_id, uint8_t * message, 
         {
             break;
         }
-
+        
         kit_delay_ms(2);
     }
     while (wake_max_delay_time-- > 0);

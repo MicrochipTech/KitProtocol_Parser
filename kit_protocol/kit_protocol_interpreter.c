@@ -655,6 +655,11 @@ void kit_interpreter_set_selected_device_handle(const uint32_t handle)
     uint8_t address = 0x00;
     uint8_t i;
 
+    //Adding below to avoid compilation error on UART with NO printf support
+    (void)device_string;
+    (void)header_string;
+    (void)address;
+    
     for (i = 0; i < MAX_DISCOVER_DEVICES; i++)
     {
         select_handle = get_device_info(i);

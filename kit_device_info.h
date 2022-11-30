@@ -56,6 +56,12 @@ static const char ecc608b_string[] = "ECC608B ";      //!< ECC608B string
 static const char sha206a_string[] = "SHA206A ";      //!< SHA206A string
 static const char ta100_string[]   = "TA100 ";        //!< TA100 string
 static const char ecc204_string[]  = "ECC204 ";       //!< ECC204 string
+static const char ta010_string[]   = "TA010 ";        //!< TA010 string
+static const char ecc206_string[]  = "ECC206 ";       //!< ECC206 string
+static const char rng90_string[]   = "RNG90 ";        //!< RNG90 string
+static const char sha104_string[]  = "SHA104 ";       //!< SHA104 string
+static const char sha105_string[]  = "SHA105 ";       //!< SHA105 string
+static const char sha106_string[]  = "SHA106 ";       //!< SHA106 string
 
 static const char aes_string[] = "AES";
 static const char authorize_string[] = "Authorize";
@@ -111,6 +117,25 @@ static const char reset_string[] = "Reset";
 static const char sleep_string[] = "Sleep";
 static const char writecompute_string[] = "WriteCompute";
 
+/* List of Device Identifiers in Emerald variants */
+#define ECC204_DEVICE_ID                  ((uint8_t)0x5A)
+#define TA010_DEVICE_ID                   ((uint8_t)0x6A)
+#define ECC206_DEVICE_ID                  ((uint8_t)0x7A)
+#define RNG90_DEVICE_ID                   ((uint8_t)0xD0)
+#define SHA104_DEVICE_ID                  ((uint8_t)0x35)
+#define SHA105_DEVICE_ID                  ((uint8_t)0x3B)
+#define SHA106_DEVICE_ID                  ((uint8_t)0x34)
+
+/* Revision number for ECC204,TA010,SHA104,SHA105,SHA106,RNG90,ECC206 */
+#define ECC_REV_NUM                    ((uint8_t)0x01)
+#define SHA_REV_NUM                    ((uint8_t)0x10)
+
+typedef struct 
+{
+    uint8_t  device_type;
+    uint8_t  device_identifier;
+    uint8_t  product_family_and_revision;
+}device_details;
 
 /** \name opcodes for ATATECC Commands
    @{ */
@@ -299,6 +324,7 @@ static const char writecompute_string[] = "WriteCompute";
 /** \name Opcode for ECC204 commands
  * @{ */
 #define ECC204_COUNTER               ((uint8_t)0x24)  //!< Counter command op-code
+#define ECC204_DELETE                ((uint8_t)0x13)  //!< Delete command op-code
 #define ECC204_GENKEY                ((uint8_t)0x40)  //!< GenKey command op-code
 #define ECC204_INFO                  ((uint8_t)0x30)  //!< Info command op-code
 #define ECC204_LOCK                  ((uint8_t)0x17)  //!< Lock command op-code
@@ -313,17 +339,18 @@ static const char writecompute_string[] = "WriteCompute";
 
 /** \name ECC204 Command execution delay
  * @{ */
-#define ECC204_COUNTER_EXEC_DELAY               ((uint8_t)1)  //!< Counter command op-code
-#define ECC204_GENKEY_EXEC_DELAY                ((uint8_t)100)  //!< GenKey command op-code
-#define ECC204_INFO_EXEC_DELAY                  ((uint8_t)1)  //!< Info command op-code
-#define ECC204_LOCK_EXEC_DELAY                  ((uint8_t)6)  //!< Lock command op-code
-#define ECC204_NONCE_EXEC_DELAY                 ((uint8_t)35)  //!< Nonce command op-code
-#define ECC204_READ_EXEC_DELAY                  ((uint8_t)1)  //!< Read command op-code
-#define ECC204_SELFTEST_EXEC_DELAY              ((uint8_t)110)  //!< Selftest command op-code
-#define ECC204_SHA_EXEC_DELAY                   ((uint8_t)4)  //!< SHA command op-code
-#define ECC204_SIGN_EXEC_DELAY                  ((uint8_t)100)  //!< Sign command op-code
-#define ECC204_WRITE_EXEC_DELAY                 ((uint8_t)10)  //!< Write command op-code
-/** @} */
+#define ECC204_COUNTER_EXEC_DELAY               ((uint16_t)20)   //!< Counter command op-code
+#define ECC204_DELETE_EXEC_DELAY                ((uint16_t)200)  //!< Delete command op-code
+#define ECC204_GENKEY_EXEC_DELAY                ((uint16_t)500)  //!< GenKey command op-code
+#define ECC204_INFO_EXEC_DELAY                  ((uint16_t)20)   //!< Info command op-code
+#define ECC204_LOCK_EXEC_DELAY                  ((uint16_t)80)   //!< Lock command op-code
+#define ECC204_NONCE_EXEC_DELAY                 ((uint16_t)20)   //!< Nonce command op-code
+#define ECC204_READ_EXEC_DELAY                  ((uint16_t)40)   //!< Read command op-code
+#define ECC204_SELFTEST_EXEC_DELAY              ((uint16_t)600)  //!< Selftest command op-code
+#define ECC204_SHA_EXEC_DELAY                   ((uint16_t)80)   //!< SHA command op-code
+#define ECC204_SIGN_EXEC_DELAY                  ((uint16_t)500)  //!< Sign command op-code
+#define ECC204_WRITE_EXEC_DELAY                 ((uint16_t)80)   //!< Write command op-code
+#define ECC204_DEFAULT_EXEC_DELAY               ((uint16_t)100)  //!< Default
 
 
 /** \name Response Size Definitions
@@ -373,7 +400,13 @@ typedef enum
     DEVICE_TYPE_SHA206A,   //!< SHA206A device
     DEVICE_TYPE_ECC608B,   //!< ECC608B device
     DEVICE_TYPE_TA100,     //!< TA100 device
-    DEVICE_TYPE_ECC204,   //!< ECC204A device
+    DEVICE_TYPE_ECC204,    //!< ECC204A device
+    DEVICE_TYPE_TA010,     //!< TA010 device
+    DEVICE_TYPE_ECC206,    //!< ECC206 device
+    DEVICE_TYPE_RNG90,     //!< RNG90 device
+    DEVICE_TYPE_SHA104,    //!< SHA104 device
+    DEVICE_TYPE_SHA105,    //!< SHA105 device
+    DEVICE_TYPE_SHA106,    //!< SHA106 device
 } device_type_t;
 
 //! enumeration for interface types
@@ -494,7 +527,29 @@ uint8_t get_eccx08_response_size(uint8_t *command);
  *
  *  \return command execution delay
  */
-uint8_t get_ecc204_opcode_execution_delay(uint8_t opcode);
+uint16_t get_ecc204_opcode_execution_delay(uint8_t opcode);
+
+/** \brief The function return device type
+ *
+ *  \param[in]    dev_rev             references to device revision          
+ *
+ *  \param[in]    dev_id              references to device identifier
+ *
+ *  \param[out]   None
+ *
+ *  \return Device type
+ */
+device_type_t get_device_type(const uint8_t dev_rev, const uint8_t dev_id);
+
+/** \brief The function returns whether the device supports idle command or not
+ *
+ *  \param[in]    device_type         references to device type
+ *
+ *  \param[out]   None
+ * 
+ *  \return Returns a boolean value to know whether the device supports idle command or not
+ */
+bool check_idle_support(device_type_t device_type);
 
 #ifdef __cplusplus
 }

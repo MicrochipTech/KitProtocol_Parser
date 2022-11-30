@@ -13,6 +13,7 @@ command and respond to it by either calling the Chip Library or responding with 
 This code base implements an object-oriented C library for Kit Protocol Parser.
 The family of devices supported currently are:
 
+- [ATECC608B](http://www.microchip.com/ATECC608B)
 - [ATECC608A](http://www.microchip.com/ATECC608A)
 - [ATECC508A](http://www.microchip.com/ATECC508A)
 - [ATECC108A](http://www.microchip.com/ATECC108A)
@@ -50,24 +51,28 @@ hal being used:
 
 Host Device Support
 -------------------------
-Kitprotocol parser will run on a variety of platforms. 
+Kitprotocol parser will run on a variety of platforms.
 For example:
 - CryptoAuth Trust Platform board (or)
 - ATSAMG55 Xplained pro
 
 Release notes
 -----------
+ 3.0.9
+  - Added device support and adjusted execution delay timings
+  - Added check for valid memory allocation
+
  3.0.6
-  - Minor bug fixes on SWI2 interface 
+  - Minor bug fixes on SWI2 interface
 
  3.0.4
-  - Added UART interface to host, fixed compilation warnings and interface selection support added 
+  - Added UART interface to host, fixed compilation warnings and interface selection support added
 
  3.0.3
   - Added function to provide an Emerald execution delay to support no polling method
-  
+
  3.0.2
-  - Bug fixed related to kitprotocol firmware name string to provide support on ACES 
+  - Bug fixed related to kitprotocol firmware name string to provide support on ACES
 
  3.0.1
   - Bug fixed related to SWI string

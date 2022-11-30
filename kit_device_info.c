@@ -39,8 +39,20 @@
     Index 2 is the actual device code.
     Index 3 is the silicon revision.
  */
+#define DEVICE_IDENTIFIER_LOCATION  1
 #define DEVICE_PART_LOCATION        2
 #define DEVICE_REVISION_LOCATION    3
+
+const device_details ecc_sha_rng[] = 
+{
+    {DEVICE_TYPE_ECC204,       ECC204_DEVICE_ID,      ECC_REV_NUM},
+    {DEVICE_TYPE_ECC206,       ECC206_DEVICE_ID,      ECC_REV_NUM},
+    {DEVICE_TYPE_TA010,        TA010_DEVICE_ID,       ECC_REV_NUM},  
+    {DEVICE_TYPE_RNG90,        RNG90_DEVICE_ID,       SHA_REV_NUM},  
+    {DEVICE_TYPE_SHA104,       SHA104_DEVICE_ID,      SHA_REV_NUM},
+    {DEVICE_TYPE_SHA105,       SHA105_DEVICE_ID,      SHA_REV_NUM},
+    {DEVICE_TYPE_SHA106,       SHA106_DEVICE_ID,      SHA_REV_NUM},
+};
 
 const opcode_cmd_string_t ca_device_opcode_cmd_string[] =
 {
@@ -113,6 +125,12 @@ const device_cmd_string_t device_cmd_string_info[] =
     {DEVICE_TYPE_SHA206A, sha206a_string},
     {DEVICE_TYPE_TA100, ta100_string},
     {DEVICE_TYPE_ECC204, ecc204_string},
+    {DEVICE_TYPE_TA010, ta010_string},
+    {DEVICE_TYPE_ECC206, ecc206_string},
+    {DEVICE_TYPE_RNG90, rng90_string},
+    {DEVICE_TYPE_SHA104, sha104_string},
+    {DEVICE_TYPE_SHA105, sha105_string},
+    {DEVICE_TYPE_SHA106, sha106_string},
 };
 
 const char* get_command_string(device_type_t device, uint8_t opcode)
@@ -205,7 +223,7 @@ device_type_t sha_ecc_device_type(const uint8_t* dev_rev)
         break;
 
     case 0x20:
-        device = DEVICE_TYPE_ECC204;
+        device = get_device_type(dev_rev[DEVICE_REVISION_LOCATION], dev_rev[DEVICE_IDENTIFIER_LOCATION]);
         break;
 
     default:
@@ -213,6 +231,32 @@ device_type_t sha_ecc_device_type(const uint8_t* dev_rev)
         break;
     }
 
+    return device;
+}
+
+device_type_t get_device_type(const uint8_t dev_rev, const uint8_t dev_id)
+{
+    uint8_t i = 0;
+    uint8_t device = DEVICE_TYPE_UNKNOWN;
+    size_t max_device_count = sizeof(ecc_sha_rng) / sizeof(ecc_sha_rng[0]);
+            
+    if (dev_rev == 0x00)
+    {
+        device = DEVICE_TYPE_ECC204;
+    }
+    else
+    {
+        for (i = 0; i < max_device_count; i++)
+        {            
+            if (ecc_sha_rng[i].device_identifier == dev_id &&              \
+                    ecc_sha_rng[i].product_family_and_revision == dev_rev)
+            {
+                device = ecc_sha_rng[i].device_type;
+                break;
+            }
+        }
+    }
+    
     return device;
 }
 
@@ -307,12 +351,15 @@ uint8_t get_eccx08_response_size(uint8_t *command)
     return response_size;
 }
 
-uint8_t get_ecc204_opcode_execution_delay(uint8_t opcode)
+uint16_t get_ecc204_opcode_execution_delay(uint8_t opcode)
 {
     switch (opcode)
     {
     case ECC204_COUNTER:
         return ECC204_COUNTER_EXEC_DELAY;
+        break;
+    case ECC204_DELETE:
+        return ECC204_DELETE_EXEC_DELAY;
         break;
     case ECC204_GENKEY:
         return ECC204_GENKEY_EXEC_DELAY;
@@ -342,7 +389,32 @@ uint8_t get_ecc204_opcode_execution_delay(uint8_t opcode)
         return ECC204_WRITE_EXEC_DELAY;
         break;
     default:
-        return 10;
+        return ECC204_DEFAULT_EXEC_DELAY;
         break;
+    }
+}
+
+bool check_idle_support(device_type_t device_type)
+{
+    switch (device_type)
+    {
+        case DEVICE_TYPE_ECC204:
+            /* fall-through */
+        case DEVICE_TYPE_TA010:
+            /* fall-through */
+        case DEVICE_TYPE_SHA104:
+            /* fall-through */
+        case DEVICE_TYPE_SHA105:
+            /* fall-through */
+        case DEVICE_TYPE_SHA106:
+            /* fall-through */
+        case DEVICE_TYPE_RNG90:
+            /* fall-through */
+        case DEVICE_TYPE_ECC206:
+            return false;
+            break;
+        default:
+            return true;
+            break;
     }
 }
