@@ -131,6 +131,7 @@ const device_cmd_string_t device_cmd_string_info[] =
     {DEVICE_TYPE_SHA104, sha104_string},
     {DEVICE_TYPE_SHA105, sha105_string},
     {DEVICE_TYPE_SHA106, sha106_string},
+    {DEVICE_TYPE_UNKNOWN, unknown_string},
 };
 
 const char* get_command_string(device_type_t device, uint8_t opcode)

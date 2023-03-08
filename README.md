@@ -51,28 +51,36 @@ hal being used:
 
 Host Device Support
 -------------------------
-Kitprotocol parser will run on a variety of platforms.
+Kitprotocol parser will run on a variety of platforms. 
 For example:
 - CryptoAuth Trust Platform board (or)
 - ATSAMG55 Xplained pro
 
 Release notes
 -----------
+ 3.1.0
+  - Updated hardware_interface_discover to list unknown devices
+
  3.0.9
-  - Added device support and adjusted execution delay timings
   - Added check for valid memory allocation
 
+ 3.0.8
+  - Added device support for Emerald variants
+
+ 3.0.7
+  - Increased Emerald execution delay timings
+ 
  3.0.6
-  - Minor bug fixes on SWI2 interface
+  - Minor bug fixes on SWI2 interface 
 
  3.0.4
-  - Added UART interface to host, fixed compilation warnings and interface selection support added
+  - Added UART interface to host, fixed compilation warnings and interface selection support added 
 
  3.0.3
   - Added function to provide an Emerald execution delay to support no polling method
-
+  
  3.0.2
-  - Bug fixed related to kitprotocol firmware name string to provide support on ACES
+  - Bug fixed related to kitprotocol firmware name string to provide support on ACES 
 
  3.0.1
   - Bug fixed related to SWI string

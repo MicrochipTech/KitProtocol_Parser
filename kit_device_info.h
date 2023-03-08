@@ -62,6 +62,7 @@ static const char rng90_string[]   = "RNG90 ";        //!< RNG90 string
 static const char sha104_string[]  = "SHA104 ";       //!< SHA104 string
 static const char sha105_string[]  = "SHA105 ";       //!< SHA105 string
 static const char sha106_string[]  = "SHA106 ";       //!< SHA106 string
+static const char unknown_string[]  = "UNKNOWN_DEVICE ";       //!< Unknown device string
 
 static const char aes_string[] = "AES";
 static const char authorize_string[] = "Authorize";
