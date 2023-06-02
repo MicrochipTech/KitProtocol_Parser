@@ -39,6 +39,7 @@
     Index 2 is the actual device code.
     Index 3 is the silicon revision.
  */
+#define DEVICE_PRODUCT_ID_LOCATION  0
 #define DEVICE_IDENTIFIER_LOCATION  1
 #define DEVICE_PART_LOCATION        2
 #define DEVICE_REVISION_LOCATION    3
@@ -124,6 +125,7 @@ const device_cmd_string_t device_cmd_string_info[] =
     {DEVICE_TYPE_ECC608B, ecc608b_string},
     {DEVICE_TYPE_SHA206A, sha206a_string},
     {DEVICE_TYPE_TA100, ta100_string},
+    {DEVICE_TYPE_TA101, ta101_string},
     {DEVICE_TYPE_ECC204, ecc204_string},
     {DEVICE_TYPE_TA010, ta010_string},
     {DEVICE_TYPE_ECC206, ecc206_string},
@@ -185,6 +187,7 @@ const char* get_device_string(device_type_t device)
 
     return device_string;
 }
+
 device_type_t sha_ecc_device_type(const uint8_t* dev_rev)
 {
     device_type_t device;
@@ -225,6 +228,51 @@ device_type_t sha_ecc_device_type(const uint8_t* dev_rev)
 
     case 0x20:
         device = get_device_type(dev_rev[DEVICE_REVISION_LOCATION], dev_rev[DEVICE_IDENTIFIER_LOCATION]);
+        break;
+
+    default:
+        device = DEVICE_TYPE_UNKNOWN;
+        break;
+    }
+
+    return device;
+}
+
+/** \brief Check whether the device is Trust Anchor device
+ *  \return True if device is Trust Anchor device or False.
+ */
+bool check_ta_device(device_type_t dev_type)
+{
+    bool is_ta_device;
+
+    switch (dev_type)
+    {
+        case DEVICE_TYPE_TA100:
+        /* fall-through */
+        case DEVICE_TYPE_TA101:
+            is_ta_device = true;
+            break;
+            
+        default:
+            is_ta_device = false;
+            break;
+    }
+    
+    return is_ta_device;
+}
+
+device_type_t ta10x_device_type(const uint8_t* dev_rev)
+{
+    device_type_t device;
+    
+    switch (dev_rev[DEVICE_PRODUCT_ID_LOCATION])
+    {
+    case 0x00:
+        device = DEVICE_TYPE_TA100;
+        break;
+
+    case 0x01:
+        device = DEVICE_TYPE_TA101;
         break;
 
     default:

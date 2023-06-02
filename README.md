@@ -58,6 +58,9 @@ For example:
 
 Release notes
 -----------
+ 3.2.0
+  - Added device support for TA101 device
+  
  3.1.0
   - Updated hardware_interface_discover to list unknown devices
 

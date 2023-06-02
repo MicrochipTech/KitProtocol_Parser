@@ -55,6 +55,7 @@ static const char ecc608a_string[] = "ECC608A ";      //!< ECC608A string
 static const char ecc608b_string[] = "ECC608B ";      //!< ECC608B string
 static const char sha206a_string[] = "SHA206A ";      //!< SHA206A string
 static const char ta100_string[]   = "TA100 ";        //!< TA100 string
+static const char ta101_string[]   = "TA101 ";        //!< TA101 string
 static const char ecc204_string[]  = "ECC204 ";       //!< ECC204 string
 static const char ta010_string[]   = "TA010 ";        //!< TA010 string
 static const char ecc206_string[]  = "ECC206 ";       //!< ECC206 string
@@ -131,7 +132,7 @@ static const char writecompute_string[] = "WriteCompute";
 #define ECC_REV_NUM                    ((uint8_t)0x01)
 #define SHA_REV_NUM                    ((uint8_t)0x10)
 
-typedef struct 
+typedef struct
 {
     uint8_t  device_type;
     uint8_t  device_identifier;
@@ -194,7 +195,7 @@ typedef struct
 #define ATCA_AES_WRITE_COMPUTE          ((uint8_t)0x16)     //!< Write compute command op-code
 /** @} */
 
-/** \name opcodes for TA100 Commands
+/** \name opcodes for TA10x Commands
    @{ */
 #define ATCA_TA_AES                     ((uint8_t)0x1A)      //!< AES command opcode
 #define ATCA_TA_AUTHORIZE               ((uint8_t)0x16)      //!< Authorize command opcode
@@ -341,11 +342,11 @@ typedef struct
 /** \name ECC204 Command execution delay
  * @{ */
 #define ECC204_COUNTER_EXEC_DELAY               ((uint16_t)20)   //!< Counter command op-code
-#define ECC204_DELETE_EXEC_DELAY                ((uint16_t)200)  //!< Delete command op-code
+#define ECC204_DELETE_EXEC_DELAY                ((uint16_t)225)  //!< Delete command op-code
 #define ECC204_GENKEY_EXEC_DELAY                ((uint16_t)500)  //!< GenKey command op-code
 #define ECC204_INFO_EXEC_DELAY                  ((uint16_t)20)   //!< Info command op-code
 #define ECC204_LOCK_EXEC_DELAY                  ((uint16_t)80)   //!< Lock command op-code
-#define ECC204_NONCE_EXEC_DELAY                 ((uint16_t)20)   //!< Nonce command op-code
+#define ECC204_NONCE_EXEC_DELAY                 ((uint16_t)150)  //!< Nonce command op-code
 #define ECC204_READ_EXEC_DELAY                  ((uint16_t)40)   //!< Read command op-code
 #define ECC204_SELFTEST_EXEC_DELAY              ((uint16_t)600)  //!< Selftest command op-code
 #define ECC204_SHA_EXEC_DELAY                   ((uint16_t)80)   //!< SHA command op-code
@@ -401,6 +402,7 @@ typedef enum
     DEVICE_TYPE_SHA206A,   //!< SHA206A device
     DEVICE_TYPE_ECC608B,   //!< ECC608B device
     DEVICE_TYPE_TA100,     //!< TA100 device
+    DEVICE_TYPE_TA101,     //!< TA101 device
     DEVICE_TYPE_ECC204,    //!< ECC204A device
     DEVICE_TYPE_TA010,     //!< TA010 device
     DEVICE_TYPE_ECC206,    //!< ECC206 device
@@ -481,6 +483,24 @@ typedef struct
  */
 device_type_t sha_ecc_device_type(const uint8_t* dev_rev);
 
+/** \brief Check whether the device is Trust Anchor device
+ *
+ *  \return True if device is Trust Anchor device or False.
+ */
+bool check_ta_device(device_type_t dev_type);
+
+/** \brief The function return device type based on device revision number for TA devices (Crypto device)
+ *
+ *  \param[in]    dev_rev                references to device revision number
+ *
+ *  \param[out]   None
+ *
+ *  \param[inout] None
+ *
+ *  \return device type
+ */
+device_type_t ta10x_device_type(const uint8_t* dev_rev);
+
 /** \brief The function return device name
  *
  *  \param[in]    device                 references to device type
@@ -532,7 +552,7 @@ uint16_t get_ecc204_opcode_execution_delay(uint8_t opcode);
 
 /** \brief The function return device type
  *
- *  \param[in]    dev_rev             references to device revision          
+ *  \param[in]    dev_rev             references to device revision
  *
  *  \param[in]    dev_id              references to device identifier
  *
@@ -547,7 +567,7 @@ device_type_t get_device_type(const uint8_t dev_rev, const uint8_t dev_id);
  *  \param[in]    device_type         references to device type
  *
  *  \param[out]   None
- * 
+ *
  *  \return Returns a boolean value to know whether the device supports idle command or not
  */
 bool check_idle_support(device_type_t device_type);
